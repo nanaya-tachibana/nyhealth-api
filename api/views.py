@@ -17,7 +17,6 @@ from api import serializers
 from api.permissions import IsOwnerOrReadOnly
 from django.core.context_processors import request
 from django.utils.datastructures import MultiValueDict
-from mercurial.posix import isowner
 from rest_framework.permissions import IsAdminUser
 
 
