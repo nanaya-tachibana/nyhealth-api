@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_swagger',
     'south',
     'main',
     'api',
@@ -62,15 +63,15 @@ WSGI_APPLICATION = 'nyhealth.wsgi.application'
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
 
-DATABASES = {
-    'default': dj_database_url.config()
-}
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': '~/nyh',
-#     }
+#     'default': dj_database_url.config()
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/home/nanaya/nyh',
+    }
+}
 
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
