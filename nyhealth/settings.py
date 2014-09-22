@@ -39,12 +39,14 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_swagger',
+    'corsheaders',
     'south',
     'main',
     'api',
 )
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -57,6 +59,7 @@ ROOT_URLCONF = 'nyhealth.urls'
 
 WSGI_APPLICATION = 'nyhealth.wsgi.application'
 
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
