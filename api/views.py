@@ -1,19 +1,44 @@
 from django.http import Http404
+from django.utils.datastructures import MultiValueDict
 from django.shortcuts import get_object_or_404
+
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework import generics
+from rest_framework import exceptions
+from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics
-from rest_framework import mixins
-from rest_framework import permissions
-from rest_framework.reverse import reverse
-from rest_framework.exceptions import ParseError, APIException, PermissionDenied
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.authtoken.models import Token
 
 from main import models
 from api import serializers
-from api.permission import *
+from api.permissions import (IsOwner, IsOwnerOrCreationOnly,
+                             IsAdminUserOrReadOnly)
+
+
+class ViewSetWithCareListPermission(viewsets.ModelViewSet):
+    """
+    Hack viewsets class to allow users caring each other access other's data.
+    """
+
+    def check_permissions(self, request):
+        in_care_list = True
+        if request.method in permissions.SAFE_METHODS:
+            try:
+                user_id = (self.kwargs.get('user_id', None) or
+                    self.kwargs.get('pk', None))
+                user = models.User.objects.get(pk=user_id)
+                if not (user is None or user.in_care_list(request.user.pk)):
+                    in_care_list = False
+            except:
+                return Response({'detail': 'Not found'},
+                        status=status.HTTP_404_NOT_FOUND)
+
+        if not in_care_list:
+            super(ViewSetWithCareListPermission, self).check_permissions(request)
+
 
 class VitalSignViewSet(viewsets.ModelViewSet):
 
@@ -24,11 +49,11 @@ class VitalSignViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.VitalSignSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(ViewSetWithCareListPermission):
     """
     User view set.
     """
-    permission_classes = (IsOwnerOrInCareListReadOnlyOrCreatOnly,)
+    permission_classes = (IsOwnerOrCreationOnly,)
 
     model = models.User
     queryset = model.objects.all()
@@ -57,23 +82,45 @@ class UserSettingsViewSet(viewsets.ModelViewSet):
         obj.user = self.request.user
 
 
-class UserVitalViewSet(viewsets.ModelViewSet):
+class UserVitalViewSet(ViewSetWithCareListPermission):
 
     model = models.UserVital
     lookup_field = 'user_id'
-    lookup_url_field = 'pk'
     serializer_class = serializers.UserVitalSerializer
 
-    permission_classes = (IsOwnerOrInCareListReadOnly, )
+    permission_classes = (IsOwner, )
+
+    def get_queryset(self):
+        try:
+            queryset = self.model.objects.filter(user_id=self.kwargs['user_id'])
+            pk = self.kwargs.get('pk', None)
+            if pk is not None:
+                queryset = queryset.filter(pk=pk)
+            until = self.request.QUERY_PARAMS.get('until', None)
+            if until is not None:
+                queryset = queryset.filter(updated__gt=until)
+            return queryset
+        except:
+            raise Http404
+
+    def pre_save(self, obj):
+        obj.user = self.request.user
+
+
+class UserCaredVitalViewSet(viewsets.ModelViewSet):
+
+    model = models.UserCaredVital
+    lookup_field = 'user_id'
+    serializer_class = serializers.UserCaredVitalSerializer
+
+    permission_classes = (IsOwner, )
 
     def get_queryset(self):
         queryset = self.model.objects.filter(user=self.kwargs['user_id'])
         pk = self.kwargs.get('pk', None)
         if pk is not None:
             queryset = queryset.filter(pk=pk)
-        until = self.request.QUERY_PARAMS.get('until', None)
-        if until is not None:
-            queryset = queryset.filter(updated__gt=until)
+
         return queryset
 
     def pre_save(self, obj):

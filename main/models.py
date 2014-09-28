@@ -93,6 +93,20 @@ class UserVital(models.Model):
         db_table = 'main_user_vital'
 
 
+class UserCaredVital(models.Model):
+    """
+    """
+    user = models.ForeignKey(User, db_index=True)
+    vital = models.ForeignKey(VitalSign)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(
+        auto_now=True, auto_now_add=True, db_index=True)
+
+    class Meta:
+        db_table = 'main_user_cared_vital'
+        unique_together = ('user', 'vital')
+
+
 class CareRelation(models.Model):
     """
     A model representing the care relations between users.

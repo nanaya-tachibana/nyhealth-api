@@ -42,6 +42,14 @@ user_vital_detail = views.UserVitalViewSet.as_view({
     'patch': 'partial_update',
     'delete': 'destroy',
 })
+user_cared_vitals_list = views.UserCaredVitalViewSet.as_view({
+    'get': 'list',
+    'post': 'create',
+})
+user_cared_vital_detail = views.UserCaredVitalViewSet.as_view({
+    'get': 'retrieve',
+    'delete': 'destroy',
+})
 user_settings = views.UserSettingsViewSet.as_view({
     'get': 'retrieve',
     'patch': 'partial_update',
@@ -49,6 +57,7 @@ user_settings = views.UserSettingsViewSet.as_view({
 
 urlpatterns = patterns(
     '',
+    url(r'^token/', 'rest_framework.authtoken.views.obtain_auth_token'),
     url(r'^', include(router.urls)),
     url(r'^users/(?P<user_id>[0-9]+)/relations/$',
         care_relations_list, name='care-relations-list'),
@@ -66,6 +75,10 @@ urlpatterns = patterns(
         user_vitals_list, name='user-vitals-list'),
     url(r'^users/(?P<user_id>[0-9]+)/vitals/(?P<pk>[0-9]+)/$',
         user_vital_detail, name='user-vital-detail'),
+    url(r'^users/(?P<user_id>[0-9]+)/cared_vitals/$',
+        user_cared_vitals_list, name='user-cared-vitals-list'),
+    url(r'^users/(?P<user_id>[0-9]+)/cared_vitals/(?P<pk>[0-9]+)/$',
+        user_cared_vital_detail, name='user-cared-vital-detail'),
     url(r'^users/(?P<user_id>[0-9]+)/settings/$',
         user_settings, name='user-settings')
 )
