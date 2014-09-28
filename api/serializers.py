@@ -2,12 +2,27 @@
 import json
 from django.contrib.auth.hashers import make_password
 from rest_framework.reverse import reverse
-
 from rest_framework import serializers
 
 from main import models
 from django.conf import Settings
-from django.contrib.admin.util import lookup_field
+
+###############################################################################
+#  custom fields
+###############################################################################
+class UseridPkHyperlinkedIdentityField(
+        serializers.HyperlinkedIdentityField):
+    """
+    An url field uses user_id and pk to reference the object. 
+    """
+    def get_url(self, obj, view_name, request, format):
+        kwargs = {'pk': obj.pk, 'user_id': obj.user_id}
+        return reverse(view_name, kwargs=kwargs, request=request, format=format)
+
+    def get_object(self, queryset, view_name, view_args, view_kwargs):
+        pk = view_kwargs['pk']
+        user_id = view_kwargs['user_id']
+        return queryset.get(pk=pk, user_id=user_id)
 
 
 ###############################################################################
@@ -49,6 +64,7 @@ class VitalSignSerializer(serializers.HyperlinkedModelSerializer):
 #  user related serializers
 ###############################################################################
 class UserSettingSerializer(serializers.HyperlinkedModelSerializer):
+    
     url = serializers.HyperlinkedIdentityField(view_name='user-settings',
                                                lookup_field='user_id')
 
@@ -57,6 +73,7 @@ class UserSettingSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
+    
     settings = UserSettingSerializer(read_only=True)
     phone_number = serializers.CharField()
     care_relations = \
@@ -80,8 +97,9 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
         model = models.User
         fields = ('url', 'username', 'phone_number', 'password', 'settings',
                   'care_relations', 'outgoing_care_requests',
-                  'incoming_care_requests')
+                  'incoming_care_requests', 'created', 'updated')
         write_only_fields = ('password',)
+        read_only_fields = ('created', 'updated')
 
     def get_confirmed_relations(self, obj):
         relations = models.CareRelation.get_confirmed_relations(obj)
@@ -102,29 +120,20 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
         return serializer.data
 
 
-class CareRelationHyperlinkedIdentityField(
-        serializers.HyperlinkedIdentityField):
-    def get_url(self, obj, view_name, request, format):
-        kwargs = {'pk': obj.pk, 'user_id': obj.user_id}
-        return reverse(view_name, kwargs=kwargs, request=request, format=format)
-
-    def get_object(self, queryset, view_name, view_args, view_kwargs):
-        pk = view_kwargs['pk']
-        user_id = view_kwargs['user_id']
-        return queryset.get(pk=pk, user_id=user_id)
-
-
 class CareRelationSerializer(serializers.HyperlinkedModelSerializer):
-    url = CareRelationHyperlinkedIdentityField(
+    
+    url = UseridPkHyperlinkedIdentityField(
         view_name='care-relation-detail')
 
     class Meta:
         model = models.CareRelation
-        fields = ('url', 'user', 'to_user', 'created', 'updated')
+        fields = ('url', 'user', 'to_user', 'description', 'created', 'updated')
+        read_only_fields = ('user', 'to_user', 'created', 'updated')
 
 
 class OutgoingCareRelationSerializer(serializers.ModelSerializer):
-    url = CareRelationHyperlinkedIdentityField(
+    
+    url = UseridPkHyperlinkedIdentityField(
         view_name='outgoing-care-relation-detail')
     to_user = serializers.HyperlinkedRelatedField(view_name='user-detail',
                                                   many=False)
@@ -132,11 +141,13 @@ class OutgoingCareRelationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.CareRelation
-        fields = ('url', 'user', 'to_user', 'created', 'updated')
-
+        fields = ('url', 'user', 'to_user', 'description', 'created', 'updated')
+        read_only_fields = ('created', 'updated')   
+        
 
 class IncomingCareRelationSerializer(serializers.ModelSerializer):
-    url = CareRelationHyperlinkedIdentityField(
+    
+    url = UseridPkHyperlinkedIdentityField(
         view_name='incoming-care-relation-detail')
     to_user = serializers.HyperlinkedRelatedField(view_name='user-detail',
                                                   many=False)
@@ -144,11 +155,13 @@ class IncomingCareRelationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.CareRelation
-        fields = ('url', 'user', 'to_user', 'created', 'updated')
+        fields = ('url', 'user', 'to_user', 'description', 'created', 'updated')
+        read_only_fields = ('created', 'updated')
 
 
 class UserVitalSerializer(serializers.HyperlinkedModelSerializer):
-    url = CareRelationHyperlinkedIdentityField(view_name='user-vital-detail')
+    
+    url = UseridPkHyperlinkedIdentityField(view_name='user-vital-detail')
     vital_name = serializers.Field(source='vital.name')
 
     class Meta:

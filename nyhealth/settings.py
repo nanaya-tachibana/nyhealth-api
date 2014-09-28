@@ -69,12 +69,12 @@ import dj_database_url
 DATABASES = {
     'default': dj_database_url.config()
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': '/home/nanaya/nyh',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/home/nanaya/nyh',
+    }
+}
 
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()

@@ -14,6 +14,7 @@ care_relations_list = views.UserCareRelationViewSet.as_view({
 })
 care_relation_detail = views.UserCareRelationViewSet.as_view({
     'get': 'retrieve',
+    'patch': 'partial_update',
     'delete': 'destroy',
 })
 outgoing_care_relations_list = views.UserOutgoingCareRelationViewSet.as_view({
@@ -49,17 +50,17 @@ user_settings = views.UserSettingsViewSet.as_view({
 urlpatterns = patterns(
     '',
     url(r'^', include(router.urls)),
-    url(r'^users/(?P<user_id>[0-9]+)/care_list/$',
+    url(r'^users/(?P<user_id>[0-9]+)/relations/$',
         care_relations_list, name='care-relations-list'),
-    url(r'^users/(?P<user_id>[0-9]+)/care_list/(?P<pk>[0-9]+)/$',
+    url(r'^users/(?P<user_id>[0-9]+)/relations/(?P<pk>[0-9]+)/$',
         care_relation_detail, name='care-relation-detail'),
-    url(r'^users/(?P<user_id>[0-9]+)/care_list/outgoings/$',
+    url(r'^users/(?P<user_id>[0-9]+)/relations/outgoings/$',
         outgoing_care_relations_list, name='outgoing-care-relations-list'),
-    url(r'^users/(?P<user_id>[0-9]+)/care_list/outgoings/(?P<pk>[0-9]+)/$',
+    url(r'^users/(?P<user_id>[0-9]+)/relations/outgoings/(?P<pk>[0-9]+)/$',
         outgoing_care_relation_detail, name='outgoing-care-relation-detail'),
-    url(r'^users/(?P<user_id>[0-9]+)/care_list/incomings/$',
+    url(r'^users/(?P<user_id>[0-9]+)/relations/incomings/$',
         incoming_care_relations_list, name='incoming-care-relations-list'),
-    url(r'^users/(?P<user_id>[0-9]+)/care_list/incomings/(?P<pk>[0-9]+)/$',
+    url(r'^users/(?P<user_id>[0-9]+)/relations/incomings/(?P<pk>[0-9]+)/$',
         incoming_care_relation_detail, name='incoming-care-relation-detail'),
     url(r'^users/(?P<user_id>[0-9]+)/vitals/$',
         user_vitals_list, name='user-vitals-list'),

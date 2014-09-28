@@ -99,6 +99,7 @@ class CareRelation(models.Model):
 
     user: An object of user who cares another user.
     to_user: An object of user who is cared by another user.
+    description: A user defined description for the relation.
     opposite: The opposite relation's id.
         If it is 0, this relation is only one direction(an outgoing
         not being confirmed by another user).
