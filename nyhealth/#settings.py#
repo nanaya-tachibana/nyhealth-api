@@ -68,7 +68,7 @@ import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config()
-}
+    y}
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
