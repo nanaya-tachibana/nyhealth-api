@@ -38,11 +38,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_swagger',
     'corsheaders',
-    'south',
     'main',
-    'api',
+    'settings',
+    'relations',
+    'vitals',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -66,15 +66,15 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
 
+#DATABASES = {
+#    'default': dj_database_url.config()
+#}
 DATABASES = {
-    'default': dj_database_url.config()
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/home/nanaya/nyh',
+        }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': '/home/nanaya/nyh',
-#     }
-# }
 
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
