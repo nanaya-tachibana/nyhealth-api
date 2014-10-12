@@ -4,8 +4,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
-
 from rest_framework.reverse import reverse
+
+from rest_framework import permissions
+from rest_condition import ConditionalPermission, C, And, Or, Not
+from main.permissions import IsOwner
 
 import models
 import serializers
@@ -15,8 +18,8 @@ class UserRelationViewSet(viewsets.ModelViewSet):
 
     model = models.Relation
     serializer_class = serializers.RelationSerializer
-
-    permission_classes = ()
+    permission_classes = [ConditionalPermission, ]
+    permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
 
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user, opposite__gt=0)
@@ -32,7 +35,8 @@ class UserOutgoingRelationViewSet(viewsets.ModelViewSet):
     model = models.Relation
     serializer_class = serializers.OutgoingRelationSerializer
 
-    permission_classes = ()
+    permission_classes = [ConditionalPermission, ]
+    permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
 
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user, opposite=0)
@@ -70,7 +74,8 @@ class UserIncomingRelationViewSet(viewsets.ModelViewSet):
     model = models.Relation
     serializer_class = serializers.IncomingRelationSerializer
 
-    permission_classes = ()
+    permission_classes = [ConditionalPermission, ]
+    permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
 
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user, opposite=-1)
@@ -84,4 +89,3 @@ class UserIncomingRelationViewSet(viewsets.ModelViewSet):
         incoming = get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
         incoming.deny()
         return Response(status=status.HTTP_204_NO_CONTENT)
-

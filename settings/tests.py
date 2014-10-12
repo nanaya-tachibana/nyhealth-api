@@ -4,12 +4,12 @@ from rest_framework.test import APITestCase
 
 from rest_framework.authtoken.models import Token
 import models
-from main.tests import create_account
+from main.tests import fake_account
 
 
 class SettingTests(APITestCase):
     def setup(self):
-        user = create_account('aaa', '+8613120933999', '123')
+        user, _ = fake_account()
         settings = models.Setting.objects.create(user=user)
 
         token = Token.objects.get(user__username='aaa')

@@ -9,27 +9,24 @@ class IsOwner(permissions.BasePermission):
     """
     Only owner has permission to access.
     """
-    def get_user_id(self, view):
-        user_id = view.kwargs.get('user_id', None) or view.kwargs.get('pk', None)
-        if user_id is not None:
-            user_id = int(user_id)
-        return user_id
-
-    def has_permission(self, request, view):
-        user_id = self.get_user_id(view)
-        return user_id is None or user_id == request.user.id
+    def has_object_permission(self, request, view, obj):
+        # Instance must have an attribute named `user`.)
+        return obj.user == request.user
 
 
-class IsOwnerOrCreationOnly(IsOwner):
+class CreationFree(permissions.BasePermission):
     """
-    Only owner has permission to access, but creation is free.
+    Anyone can perform creations.
     """
     def has_permission(self, request, view):
-        if request.method == 'post':
-            return True
+        return request.method == 'POST'
 
-        return super(IsOwnerOrCreationOnly, self).has_permission(request,
-                                                                 view)
+
+class IsInRelationList(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return request.user in [r.to_user for r in obj.user.care_whom]
 
 
 class IsAdminUserOrReadOnly(IsAdminUser):

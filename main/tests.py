@@ -13,7 +13,23 @@ def create_account(username, phone_number, password):
     return user
 
 
+def fake_account():
+    return [
+        create_account('aaa', '+8613120933999', '123'),
+        create_account('1', '+8613120933991', '123')
+    ]
+
+from relations.tests import fake_relation
+from vitals.tests import fake_vitals
+from vitals.tests import fake_vital_record
+
+
 class AccountTests(APITestCase):
+
+    def login(self, user):
+        token = Token.objects.get(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
     def test_create_account(self):
         """
         Ensure we can create a new account object.
@@ -33,4 +49,21 @@ class AccountTests(APITestCase):
         url = reverse('signin')
         data = {'username': 'aaa', 'password': '123'}
         response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_permissions(self):
+        """
+        Ensure the permissions work correctly.
+        """
+        user1, user2 = fake_account()
+        vitals = fake_vitals()
+        r = fake_vital_record(user2, vitals[1])
+
+        self.login(user1)
+        url = reverse('user-detail', args=[user2.pk]) + 'vitals/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        fake_relation(user1, user2)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
