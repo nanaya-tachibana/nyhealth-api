@@ -60,9 +60,9 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('url', 'username', 'phone_number', 'password', 'settings',
-                  'care_relations', 'outgoing_care_relations',
-                  'incoming_care_relations')
+        fields = ('url', 'auth_token', 'username', 'phone_number',
+                  'password', 'settings', 'care_relations',
+                  'outgoing_care_relations', 'incoming_care_relations')
         write_only_fields = ('password',)
 
     def get_confirmed_relations(self, obj):
