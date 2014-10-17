@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
 from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework import status
 from rest_condition import ConditionalPermission, C, And, Or, Not
 from main.permissions import IsOwner, IsInRelationList, IsAdminUserOrReadOnly
 
@@ -10,15 +12,33 @@ import models
 import serializers
 
 
-class VitalSignViewSet(viewsets.ModelViewSet):
+class MultiCreateModelViewset(viewsets.ModelViewSet):
+    """
+    Override the create method to support multiply instances creation.
+    """
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.DATA,
+                                         files=request.FILES, many=True)
+        if serializer.is_valid():
+            [self.pre_save(obj) for obj in serializer.object]
+            self.objects = serializer.save(force_insert=True)
+            [self.pre_save(obj) for obj in self.objects]
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VitalSignViewSet(MultiCreateModelViewset):
 
     model = models.VitalSign
     queryset = model.objects.all()
     serializer_class = serializers.VitalSignSerializer
-    permission_classes = [IsAdminUserOrReadOnly, ]
+    permission_classes = [permissions.IsAuthenticated, IsAdminUserOrReadOnly, ]
 
 
-class UserVitalRecordViewSet(viewsets.ModelViewSet):
+class UserVitalRecordViewSet(MultiCreateModelViewset):
 
     model = models.UserVitalRecord
     serializer_class = serializers.UserVitalRecordSerializer
@@ -33,7 +53,7 @@ class UserVitalRecordViewSet(viewsets.ModelViewSet):
         obj.user = self.request.user
 
 
-class UserMonitoringVitalViewSet(viewsets.ModelViewSet):
+class UserMonitoringVitalViewSet(MultiCreateModelViewset):
 
     model = models.UserMonitoringVital
     serializer_class = serializers.UserMonitoringVitalSerializer

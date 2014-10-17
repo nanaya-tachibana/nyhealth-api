@@ -4,20 +4,25 @@ from rest_framework.test import APITestCase
 
 from rest_framework.authtoken.models import Token
 import models
-from main.tests import fake_account
 
 
 def fake_vitals():
     return [
         models.VitalSign.objects.create(name='a', reference_value='1'),
         models.VitalSign.objects.create(name='b', reference_value='2'),
-        models.VitalSign.objects.create(name='c', reference_value='3')
+        models.VitalSign.objects.create(name='c', reference_value='3'),
+        models.VitalSign.objects.create(name='aa', reference_value='1'),
+        models.VitalSign.objects.create(name='bb', reference_value='2'),
+        models.VitalSign.objects.create(name='cc', reference_value='3')
+
     ]
 
 
 def fake_vital_record(user, vital):
-    return models.UserVitalRecord.objects.create(user=user, 
+    return models.UserVitalRecord.objects.create(user=user,
                                                  vital=vital, value='111')
+
+from main.tests import fake_account
 
 
 class SettingTests(APITestCase):
@@ -25,13 +30,6 @@ class SettingTests(APITestCase):
     def login(self, user):
         token = Token.objects.get(user=user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-
-    def create_some_vitals(self):
-        return [
-            models.VitalSign.objects.create(name='a', reference_value='1'),
-            models.VitalSign.objects.create(name='b', reference_value='2'),
-            models.VitalSign.objects.create(name='c', reference_value='3')
-        ]
 
     def test_permissions(self):
         """
@@ -53,7 +51,7 @@ class SettingTests(APITestCase):
         self.login(user1)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data['results']), 2)
 
         # cannot see another user's records
         response = self.client.get(reverse('vital-record-detail', args=[r.pk]))
@@ -67,10 +65,14 @@ class SettingTests(APITestCase):
         self.login(user)
         vitals = fake_vitals()
 
-        data = {'user': reverse('user-detail', args=[user.pk]),
+        data = [
+                {'user': reverse('user-detail', args=[user.pk]),
                 'vital': reverse('vital-detail', args=[vitals[0].pk]),
-                'value': '123'}
+                'value': '123'},
+                {'user': reverse('user-detail', args=[user.pk]),
+                'vital': reverse('vital-detail', args=[vitals[0].pk]),
+                'value': '213'}
+        ]
         url = reverse('vital-record-list')
         response = self.client.post(url, data, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
