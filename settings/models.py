@@ -5,7 +5,8 @@ from main.models import User
 
 class Setting(models.Model):
     """
-    User's settings.
+    User's settings
+
     """
     user = models.OneToOneField(
         User, primary_key=True, related_name='settings')

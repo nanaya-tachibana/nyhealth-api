@@ -30,6 +30,7 @@ monitoring_list = views.UserMonitoringVitalViewSet.as_view({
 monitoring_detail = views.UserMonitoringVitalViewSet.as_view({
     'get': 'retrieve',
     'patch': 'partial_update',
+    'delete': 'destroy',
 })
 
 urlpatterns = patterns(

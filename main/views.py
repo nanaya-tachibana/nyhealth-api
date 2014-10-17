@@ -45,7 +45,7 @@ class UserViewSet(viewsets.ModelViewSet):
         care_list = [r.user for r in user.care_whom.all()]
 
         if self.request.user == user or self.request.user in care_list:
-            serializer = UserVitalRecordSerializer(user.vitals.all(), 
+            serializer = UserVitalRecordSerializer(user.vitals.all(),
                                                    context={'request': request},
                                                    many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
