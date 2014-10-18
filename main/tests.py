@@ -67,3 +67,16 @@ class AccountTests(APITestCase):
         fake_relation(user1, user2)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_search(self):
+        """
+        Ensure seaching works correctly.
+        """
+        user1, user2 = fake_account()
+
+        self.login(user1)
+        url = reverse('user-list') + 'search/?username=' + user2.username
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+

@@ -22,7 +22,8 @@ class UserRelationViewSet(viewsets.ModelViewSet):
     permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
 
     def get_queryset(self):
-        return self.model.objects.filter(user=self.request.user, opposite__gt=0)
+        return self.model.objects.\
+            filter(user=self.request.user, opposite__gt=0).order_by('-updated')
 
     def post_delete(self, obj):
         opposite = obj.get_opposite()
@@ -39,7 +40,8 @@ class UserOutgoingRelationViewSet(viewsets.ModelViewSet):
     permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
 
     def get_queryset(self):
-        return self.model.objects.filter(user=self.request.user, opposite=0)
+        return self.model.objects.\
+            filter(user=self.request.user, opposite=0).order_by('-updated')
 
     def create(self, request, *args, **kwargs):
         data = MultiValueDict(request.DATA)
@@ -78,7 +80,8 @@ class UserIncomingRelationViewSet(viewsets.ModelViewSet):
     permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
 
     def get_queryset(self):
-        return self.model.objects.filter(user=self.request.user, opposite=-1)
+        return self.model.objects.\
+            filter(user=self.request.user, opposite=-1).order_by('-updated')
 
     def allow(self, request, *args, **kwargs):
         incoming = get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])

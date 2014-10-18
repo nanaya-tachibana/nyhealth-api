@@ -10,6 +10,7 @@ from main.permissions import IsOwner, IsInRelationList, IsAdminUserOrReadOnly
 
 import models
 import serializers
+from main.utils import strtime_to_datetime
 
 
 class MultiCreateModelViewset(viewsets.ModelViewSet):
@@ -47,7 +48,13 @@ class UserVitalRecordViewSet(MultiCreateModelViewset):
     permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
 
     def get_queryset(self):
-        return self.model.objects.filter(user=self.request.user)
+        since = self.request.QUERY_PARAMS.get('since', None)
+
+        records = self.model.objects.filter(user=self.request.user)
+        if since is not None:
+            records = records.filter(created__gt=strtime_to_datetime(since))
+
+        return records.order_by('-updated')
 
     def pre_save(self, obj):
         obj.user = self.request.user
@@ -62,7 +69,8 @@ class UserMonitoringVitalViewSet(MultiCreateModelViewset):
     permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
 
     def get_queryset(self):
-        return self.model.objects.filter(user=self.request.user)
+        return self.model.objects.filter(user=self.request.user).\
+            order_by('-updated')
 
     def pre_save(self, obj):
         obj.user = self.request.user

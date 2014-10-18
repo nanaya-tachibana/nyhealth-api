@@ -10,9 +10,10 @@ from rest_framework import serializers
 from models import User
 from settings.serializers import UserSettingSerializer
 from relations.models import Relation
-from relations.serializers import (RelationSerializer, 
+from relations.serializers import (RelationSerializer,
                                    IncomingRelationSerializer,
                                    OutgoingRelationSerializer)
+from vitals.serializers import UserMonitoringVitalSerializer
 
 
 class DynamicFieldsHyperlinkedModelSerializer(
@@ -48,6 +49,7 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
         serializers.SerializerMethodField('get_outgoing_relations')
     incoming_care_relations = \
         serializers.SerializerMethodField('get_incoming_relations')
+    monitorings = UserMonitoringVitalSerializer(read_only=True)
 
     def restore_object(self, attrs, instance=None):
         """
@@ -62,7 +64,8 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
         model = User
         fields = ('url', 'auth_token', 'username', 'phone_number',
                   'password', 'settings', 'care_relations',
-                  'outgoing_care_relations', 'incoming_care_relations')
+                  'outgoing_care_relations', 'incoming_care_relations',
+                  'monitorings')
         write_only_fields = ('password',)
 
     def get_confirmed_relations(self, obj):
@@ -82,3 +85,27 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
         serializer = IncomingRelationSerializer(
             relations, many=True, context=self.context)
         return serializer.data
+
+
+class UserPublicSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Display public information of the user.
+    """
+    phone_number = serializers.CharField()
+    settings = UserSettingSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('url', 'username', 'settings')
+
+
+class SubAccountSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Display public information of the user.
+    """
+    phone_number = serializers.CharField()
+    settings = UserSettingSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('url', 'username', 'password')

@@ -43,7 +43,7 @@ class SettingTests(APITestCase):
         r = fake_vital_record(user2, vitals[2])
 
         # user should login to view one's records
-        url = reverse('vital-record-list')
+        url = reverse('vital-record-list') + '?since=1999-01-01'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
