@@ -6,7 +6,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
 from rest_condition import ConditionalPermission, C, And, Or, Not
-from main.permissions import IsOwner, IsInRelationList, IsAdminUserOrReadOnly
+from main.permissions import IsOwner, IsAdminUserOrReadOnly
 
 import models
 import serializers

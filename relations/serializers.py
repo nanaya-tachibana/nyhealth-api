@@ -11,6 +11,7 @@ class RelationSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Relation
+        view_name = 'relation-detail'
         fields = ('url', 'user', 'to_user', 'description', 'created', 'updated')
         read_only_fields = ('user', 'to_user', 'created', 'updated')
 
@@ -21,6 +22,7 @@ class OutgoingRelationSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Relation
+        view_name = 'outgoing-relation-detail'
         fields = ('url', 'user', 'to_user', 'description', 'created', 'updated')
         read_only_fields = ('created', 'updated')
 
@@ -31,6 +33,7 @@ class IncomingRelationSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Relation
+        view_name = 'incoming-relation-detail'
         fields = ('url', 'user', 'to_user', 'description', 'created', 'updated')
         read_only_fields = ('created', 'updated')
 

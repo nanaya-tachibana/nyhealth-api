@@ -4,7 +4,6 @@ from rest_framework.test import APITestCase
 
 from rest_framework.authtoken.models import Token
 import models
-from main.tests import fake_account
 
 
 def fake_relation(user, to_user):
@@ -12,6 +11,8 @@ def fake_relation(user, to_user):
         models.Relation.objects.create(user=user, to_user=to_user, opposite=1),
         models.Relation.objects.create(user=to_user, to_user=user, opposite=2)
     ]
+
+from main.tests import fake_account
 
 
 class SettingTests(APITestCase):
@@ -62,8 +63,7 @@ class SettingTests(APITestCase):
                 'description': 'xxxx'}
 
         url = reverse('outgoing-relation-list')
-        response = self.client.post(url, data)
-
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertQuerysetEqual(
             models.Relation.objects.filter(user=to_user,

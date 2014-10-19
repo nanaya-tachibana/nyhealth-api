@@ -40,7 +40,7 @@ urlpatterns = patterns(
     url(r'^relations/outgoings/$',
         outgoing_relation_list, name='outgoing-relation-list'),
     url(r'^relations/outgoings/(?P<pk>[0-9]+)/$',
-        relation_detail, name='relation-detail'),
+        outgoing_relation_detail, name='outgoing-relation-detail'),
     url(r'^relations/incomings/$',
         incoming_relation_list, name='incoming-relation-list'),
     url(r'^relations/incomings/(?P<pk>[0-9]+)/$',

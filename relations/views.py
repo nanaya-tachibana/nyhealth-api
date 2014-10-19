@@ -1,3 +1,5 @@
+from rest_framework.compat import urlparse
+from django.core.urlresolvers import resolve
 from django.utils.datastructures import MultiValueDict
 from django.shortcuts import get_object_or_404
 
@@ -41,10 +43,10 @@ class UserOutgoingRelationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.model.objects.\
-            filter(user=self.request.user, opposite=0).order_by('-updated')
+            filter(user_id=self.request.user.pk, opposite=0).order_by('-updated')
 
     def create(self, request, *args, **kwargs):
-        data = MultiValueDict(request.DATA)
+        data = dict(request.DATA)
         data['user'] = reverse('user-detail', args=[self.request.user.pk])
         serializer = self.get_serializer(data=data, files=request.FILES)
 

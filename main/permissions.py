@@ -5,13 +5,14 @@ from rest_framework.permissions import IsAdminUser
 from main import models
 
 
+
 class IsOwner(permissions.BasePermission):
     """
     Only owner has permission to access.
     """
     def has_object_permission(self, request, view, obj):
-        # Instance must have an attribute named `user`.)
-        return obj.user == request.user
+        # Instance must have an attribute named `user`
+        return  getattr(obj, 'user', None) == request.user
 
 
 class CreationFree(permissions.BasePermission):
