@@ -49,10 +49,13 @@ class UserVitalRecordViewSet(MultiCreateModelViewset):
 
     def get_queryset(self):
         since = self.request.QUERY_PARAMS.get('since', None)
+        vital = self.request.QUERY_PARAMS.get('vital', None)
 
         records = self.model.objects.filter(user=self.request.user)
         if since is not None:
             records = records.filter(created__gt=strtime_to_datetime(since))
+        if vital is not None:
+            records = records.filter(vital_id=vital)
 
         return records.order_by('-updated')
 

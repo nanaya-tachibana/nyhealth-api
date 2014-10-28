@@ -23,6 +23,8 @@ class UserVitalRecordSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.UserVitalRecord
         view_name = 'vital-record-detail'
+        fields = ('url', 'id', 'user', 'vital', 'vital_name',
+                  'created', 'updated')
         read_only_fields = ('user', 'created', 'updated')
 
 
@@ -34,4 +36,6 @@ class UserMonitoringVitalSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.UserMonitoringVital
         view_name = 'monitoring-detail'
+        fields = ('url', 'id', 'user', 'vital', 'vital_name',
+                  'created', 'updated')
         read_only_fields = ('user', 'created', 'updated')

@@ -49,7 +49,7 @@ class SettingTests(APITestCase):
 
         # only show login user's records
         self.login(user1)
-        response = self.client.get(url)
+        response = self.client.get(url + '?vital=1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 2)
 
