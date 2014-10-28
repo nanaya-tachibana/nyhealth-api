@@ -14,6 +14,7 @@ vital_list = views.VitalSignViewSet.as_view({
 })
 vital_detail = views.VitalSignViewSet.as_view({
     'get': 'retrieve',
+    'delete': 'destroy',
     'patch': 'partial_update',
 })
 vital_record_list = views.UserVitalRecordViewSet.as_view({

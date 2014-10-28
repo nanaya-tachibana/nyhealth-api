@@ -12,7 +12,7 @@ class VitalSignSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.VitalSign
         view_name = 'vital-detail'
-        fields = ('url', 'name', 'reference_value')
+        fields = ('url', 'id', 'name', 'reference_value')
 
 
 class UserVitalRecordSerializer(serializers.HyperlinkedModelSerializer):

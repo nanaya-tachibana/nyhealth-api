@@ -68,7 +68,7 @@ class UserOutgoingRelationViewSet(viewsets.ModelViewSet):
             opposite.save()
 
     def post_delete(self, obj):
-        opposite = obj.get_opposite(-1)
+        opposite = obj.get_opposite()
         if opposite is not None:
             opposite.delete()
 

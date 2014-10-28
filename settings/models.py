@@ -12,7 +12,7 @@ class Setting(models.Model):
         User, primary_key=True, related_name='settings')
     language = models.CharField(max_length=8, default='en')
     timezone = models.CharField(max_length=8, default='UTC')
-    location = models.CharField(max_length=8, default='UTC')
+    location = models.CharField(max_length=32, default='HK')
     birthday = models.DateField('iso-8601', default='1970-01-01')
 
     class Meta:

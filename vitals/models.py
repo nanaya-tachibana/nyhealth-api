@@ -10,11 +10,10 @@ class VitalSign(models.Model):
     `name` ... the name of vital sign
     `reference_value` ... the normal value of vital sign
     """
-    name = models.CharField(max_length=60, db_index=True)
+    name = models.CharField(unique=True, max_length=60, db_index=True)
     reference_value = models.CharField(max_length=128, default='')
     created = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated = models.DateTimeField(
-        auto_now=True, auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
         db_table = 'vitals'
@@ -35,8 +34,7 @@ class UserVitalRecord(models.Model):
     vital = models.ForeignKey(VitalSign)
     value = models.CharField(max_length=128)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated = models.DateTimeField(
-        auto_now=True, auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
         db_table = 'user_vital_records'
@@ -56,8 +54,7 @@ class UserMonitoringVital(models.Model):
     vital = models.ForeignKey(VitalSign)
     level = models.IntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated = models.DateTimeField(
-        auto_now=True, auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
         db_table = 'user_monitoring_vitals'

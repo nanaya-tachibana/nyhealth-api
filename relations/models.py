@@ -22,8 +22,7 @@ class Relation(models.Model):
     description = models.CharField(max_length=32, default='')
     opposite = models.IntegerField(default=0, db_index=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated = models.DateTimeField(
-        auto_now=True, auto_now_add=True, db_index=True)
+    updated = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
         unique_together = ('user', 'to_user')
@@ -41,7 +40,7 @@ class Relation(models.Model):
     def get_incoming_relations(cls, to_user):
         return cls.objects.filter(to_user=to_user, opposite=-1)
 
-    def get_opposite(self, opposite=None):
+    def get_opposite(self):
         """
         Get the opposite relation.
 
@@ -49,13 +48,19 @@ class Relation(models.Model):
         Set opposite equal -1, if current relation is incoming relation.
         """
         try:
-            if opposite is None:
-                opposite = self.opposite
             return Relation.objects.get(user_id=self.to_user,
-                                        to_user_id=self.user,
-                                        opposite=opposite)
+                                        to_user_id=self.user)
         except Relation.DoesNotExist:
             return None
+
+    def destroy(self):
+        """
+        Destroy the relation and its opposite relation.
+        """
+        opposite = self.get_opposite()
+        if opposite is not None:
+            opposite.delete()
+        self.delete()
 
     def allow(self):
         """
