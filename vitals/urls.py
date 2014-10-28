@@ -24,6 +24,9 @@ vital_record_list = views.UserVitalRecordViewSet.as_view({
 vital_record_detail = views.UserVitalRecordViewSet.as_view({
     'get': 'retrieve',
 })
+vital_record_one_page = views.UserVitalRecordViewSet.as_view({
+    'get': 'one_page',
+})
 monitoring_list = views.UserMonitoringVitalViewSet.as_view({
     'get': 'list',
     'post': 'create',
@@ -40,6 +43,8 @@ urlpatterns = patterns(
     url(r'^available_vitals/(?P<pk>[0-9]+)/$',
         vital_detail, name='vital-detail'),
     url(r'^vitals/$', vital_record_list, name='vital-record-list'),
+    url(r'^vitals/one_page/$', vital_record_one_page,
+        name='vital-record-one-page'),
     url(r'^vitals/(?P<pk>[0-9]+)/$',
         vital_record_detail, name='vital-record-detail'),
     url(r'^vitals/monitorings/$', monitoring_list, name='monitoring-list'),

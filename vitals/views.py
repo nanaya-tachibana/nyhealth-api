@@ -5,12 +5,14 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import detail_route, list_route
+
 from rest_condition import ConditionalPermission, C, And, Or, Not
 from main.permissions import IsOwner, IsAdminUserOrReadOnly
 
 import models
 import serializers
-from main.utils import strtime_to_datetime
+from main.utils import strtime_to_datetime, three_month
 
 
 class MultiCreateModelViewset(viewsets.ModelViewSet):
@@ -53,11 +55,21 @@ class UserVitalRecordViewSet(MultiCreateModelViewset):
 
         records = self.model.objects.filter(user=self.request.user)
         if since is not None:
-            records = records.filter(created__gt=strtime_to_datetime(since))
+            since = strtime_to_datetime(since)
+        else:
+            since = three_month
+        records = records.filter(created__gt=since)
+
         if vital is not None:
             records = records.filter(vital_id=vital)
 
         return records.order_by('-updated')
+
+    @list_route(methods=['get'])
+    def one_page(self, request):
+        s = self.get_serializer(self.filter_queryset(self.get_queryset()), 
+                                many=True)
+        return Response(s.data)
 
     def pre_save(self, obj):
         obj.user = self.request.user
