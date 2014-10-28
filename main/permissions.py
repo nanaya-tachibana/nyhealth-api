@@ -5,7 +5,6 @@ from rest_framework.permissions import IsAdminUser
 from main import models
 
 
-
 class IsOwner(permissions.BasePermission):
     """
     Only owner has permission to access.

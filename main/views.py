@@ -86,6 +86,15 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_pagination_serializer(page)
         return Response(serializer.data)
 
+    def pre_delete(self, obj):
+        for r in obj.cared_by_whom.all():
+            r.destroy()
+        for r in obj.care_whom.all():
+            r.destroy()
+        obj.settings.delete()
+        for m in obj.monitorings.all():
+            m.delete()
+
 
 class GetAuthTokenAndUserInformation(ObtainAuthToken):
     throttle_classes = ()
