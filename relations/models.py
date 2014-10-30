@@ -17,8 +17,8 @@ class Relation(models.Model):
     updated: Last modified time.
     """
     user = models.ForeignKey(
-        User, related_name='cared_by_whom', db_index=True)
-    to_user = models.ForeignKey(User, related_name='care_whom', db_index=True)
+        User, related_name='relations', db_index=True)
+    to_user = models.ForeignKey(User, db_index=True)
     description = models.CharField(max_length=32, default='')
     opposite = models.IntegerField(default=0, db_index=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -30,15 +30,18 @@ class Relation(models.Model):
 
     @classmethod
     def get_confirmed_relations(cls, from_user):
-        return cls.objects.filter(user=from_user, opposite__gt=0)
+        return cls.objects.filter(user=from_user,
+                                  opposite__gt=0).order_by('-updated')
 
     @classmethod
     def get_outgoing_relations(cls, from_user):
-        return cls.objects.filter(user=from_user, opposite=0)
+        return cls.objects.filter(user=from_user,
+                                  opposite=0).order_by('-updated')
 
     @classmethod
     def get_incoming_relations(cls, to_user):
-        return cls.objects.filter(to_user=to_user, opposite=-1)
+        return cls.objects.filter(to_user=to_user,
+                                  opposite=-1).order_by('-updated')
 
     def get_opposite(self):
         """

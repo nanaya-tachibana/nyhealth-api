@@ -13,7 +13,7 @@ from rest_framework.exceptions import PermissionDenied
 
 import models
 import serializers
-from utils import strtime_to_datetime
+from utils import strtime_to_datetime, three_month
 
 from settings.models import Setting
 from vitals.serializers import UserVitalRecordSerializer
@@ -49,16 +49,19 @@ class UserViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def vitals(self, request, pk=None):
         since = request.QUERY_PARAMS.get('since', None)
+        vital = self.request.QUERY_PARAMS.get('vital', None)
         if since is not None:
             since = strtime_to_datetime(since)
+        else:
+            since = three_month
 
         user = self.get_object()
         care_list = [r.user for r in user.care_whom.all()]
 
         if self.request.user == user or self.request.user in care_list:
-            records = user.vitals
-            if since is not None:
-                records = records.filter(created__gt=since).all()
+            records = user.vitals.filter(created__gt=since)
+            if vital is not None:
+                records = records.filter(vital_id=vital)
             serializer = UserVitalRecordSerializer(
                             records.all(),
                             context={'request': request},
