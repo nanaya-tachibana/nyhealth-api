@@ -69,7 +69,7 @@ class Relation(models.Model):
         """
         Allow an incoming relation.
         """
-        outgoing = self.get_opposite(0)
+        outgoing = self.get_opposite()
         if outgoing is not None:
             outgoing.opposite = self.id
             self.opposite = outgoing.id
@@ -80,7 +80,7 @@ class Relation(models.Model):
         """
         Deny an incoming relation.
         """
-        outgoing = self.get_opposite(0)
+        outgoing = self.get_opposite()
         if outgoing is not None:
             outgoing.delete()
         self.delete()

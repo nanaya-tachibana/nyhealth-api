@@ -56,7 +56,8 @@ class UserViewSet(viewsets.ModelViewSet):
             since = three_month
 
         user = self.get_object()
-        care_list = [r.user for r in user.care_whom.all()]
+        care_list = [r.to_user for
+                     r in user.relations.filter(opposite__gt=0).all()]
 
         if self.request.user == user or self.request.user in care_list:
             records = user.vitals.filter(created__gt=since)
