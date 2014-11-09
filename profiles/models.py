@@ -10,7 +10,7 @@ class Profile(models.Model):
     """
     user = models.OneToOneField(
         USER_MODEL, primary_key=True, related_name='profiles')
-    profile_photo = models.URLField(default='')
+    profile_photo = models.URLField(default='', blank=True)
     language = models.CharField(max_length=8, default='en')
     timezone = models.CharField(max_length=8, default='UTC')
     location = models.CharField(max_length=32, default='HK')

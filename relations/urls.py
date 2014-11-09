@@ -17,7 +17,7 @@ relation_detail = views.UserRelationViewSet.as_view({
 })
 outgoing_relation_list = views.UserOutgoingRelationViewSet.as_view({
     'get': 'list',
-    'post': 'create',
+    'post': 'send_request',
 })
 outgoing_relation_detail = views.UserOutgoingRelationViewSet.as_view({
     'get': 'retrieve',

@@ -53,7 +53,7 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
     class Meta:
         model = User
         view_name = 'user-detail'
-        fields = ('url', 'auth_token', 'username', 'phone_number',
+        fields = ('url', 'id', 'auth_token', 'username', 'phone_number',
                   'profiles', 'care_relations',
                   'outgoing_care_relations', 'incoming_care_relations',
                   'monitorings')
@@ -98,4 +98,4 @@ class UserPublicSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('url', 'username', 'profiles')
+        fields = ('url', 'id', 'username', 'profiles')

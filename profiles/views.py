@@ -1,9 +1,6 @@
 from rest_framework import viewsets
 
-from rest_framework import permissions
-from rest_condition import ConditionalPermission, C, And, Or, Not
-
-from permissions import IsOwner
+from rest_framework.permissions import IsAuthenticated
 
 import models
 import serializers
@@ -11,10 +8,9 @@ import serializers
 
 class UserSettingsViewSet(viewsets.ModelViewSet):
 
-    serializer_class = serializers.UserProfileSerializer
     model = models.Profile
-    permission_classes = [ConditionalPermission, ]
-    permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
+    serializer_class = serializers.UserProfileSerializer
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user)

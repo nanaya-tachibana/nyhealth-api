@@ -5,7 +5,7 @@ Created on Oct 11, 2014
 '''
 from django.conf.urls import patterns, url
 
-import views
+from vitals import views
 
 
 vital_list = views.VitalSignViewSet.as_view({
@@ -23,6 +23,7 @@ vital_record_list = views.UserVitalRecordViewSet.as_view({
 })
 vital_record_detail = views.UserVitalRecordViewSet.as_view({
     'get': 'retrieve',
+    'delete': 'destroy',
 })
 vital_record_one_page = views.UserVitalRecordViewSet.as_view({
     'get': 'one_page',

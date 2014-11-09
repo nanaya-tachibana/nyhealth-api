@@ -1,11 +1,12 @@
+from django.conf import settings
 from django.db import models
 
-from main.models import User
+USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 
 class Relation(models.Model):
     """
-    Relations between users.
+    User Relation model.
 
     user: An object of user who cares another user.
     to_user: An object of user who is cared by another user.
@@ -17,10 +18,10 @@ class Relation(models.Model):
     updated: Last modified time.
     """
     user = models.ForeignKey(
-        User, related_name='relations', db_index=True)
-    to_user = models.ForeignKey(User, db_index=True)
-    description = models.CharField(max_length=32, default='')
-    opposite = models.IntegerField(default=0, db_index=True)
+        USER_MODEL, related_name='relations', db_index=True)
+    to_user = models.ForeignKey(USER_MODEL, db_index=True)
+    description = models.CharField(max_length=32, default='', blank=True)
+    opposite = models.IntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
@@ -29,19 +30,14 @@ class Relation(models.Model):
         db_table = 'user_relations'
 
     @classmethod
-    def get_confirmed_relations(cls, from_user):
-        return cls.objects.filter(user=from_user,
-                                  opposite__gt=0).order_by('-updated')
-
-    @classmethod
-    def get_outgoing_relations(cls, from_user):
-        return cls.objects.filter(user=from_user,
-                                  opposite=0).order_by('-updated')
-
-    @classmethod
-    def get_incoming_relations(cls, to_user):
-        return cls.objects.filter(to_user=to_user,
-                                  opposite=-1).order_by('-updated')
+    def build_relations(cls, from_user, to_user):
+        """
+        """
+        r1, _ = cls.objects.get_or_create(user=from_user, to_user=to_user)
+        r2, _ = cls.objects.get_or_create(user=to_user, to_user=from_user,
+                                          opposite=r1.pk)
+        r1.opposite = r2.pk
+        r1.save()
 
     def get_opposite(self):
         """
@@ -51,8 +47,7 @@ class Relation(models.Model):
         Set opposite equal -1, if current relation is incoming relation.
         """
         try:
-            return Relation.objects.get(user_id=self.to_user,
-                                        to_user_id=self.user)
+            return Relation.objects.get(user=self.to_user, to_user=self.user)
         except Relation.DoesNotExist:
             return None
 
