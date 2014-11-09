@@ -25,7 +25,7 @@ class RelationBasedTests(BaseTests):
         return models.Relation.build_relations(user, to_user)
 
 
-class RelationTests(BaseTests):
+class RelationTests(RelationBasedTests):
 
     def test_permissions(self):
         """
