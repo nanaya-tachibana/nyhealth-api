@@ -1,39 +1,35 @@
-from rest_framework.reverse import reverse
+from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from rest_framework.authtoken.models import Token
+from authorization.tests import BaseTests
 import models
-from main.tests import fake_account
 
 
-class SettingTests(APITestCase):
+class ProfileTests(BaseTests):
+
     def setup(self):
-        user, _ = fake_account()
-        settings = models.Setting.objects.create(user=user)
+        user = self.create_account('a', '+8613122510417', '123')
+        url = reverse('profile-detail', args=[user.profiles.pk])
+        return user, url
 
-        token = Token.objects.get(user__username='aaa')
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-        url = reverse('setting-detail', args=[settings.pk])
-        return url
-
-    def test_retrieve_settings(self):
+    def test_retrieve_profiles(self):
         """
-        Ensure we can get settings.
+        Ensure we can get profiles.
         """
-        url = self.setup()
-
+        user, url = self.setup()
+        self.login(user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_partial_update_settings(self):
+    def test_partial_update_profiles(self):
         """
-        Ensure we can update settings.
+        Ensure we can update profiles.
         """
-        url = self.setup()
-
-        data = {'birthday': '1999-10-20',
-                'language': 'cn'}
+        user, url = self.setup()
+        data = {'birthday': '1999-10-20', 'language': 'cn'}
+        self.login(user)
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['birthday'].isoformat(), '1999-10-20')

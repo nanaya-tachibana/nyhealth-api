@@ -8,23 +8,6 @@ from authorization.tests import BaseTests
 
 class AccountTests(BaseTests):
 
-#    def test_permissions(self):
-#        """
-#        Ensure the permissions work correctly.
-#        """
-#        user1, user2 = fake_account()
-#        vitals = fake_vitals()
-#        r = fake_vital_record(user2, vitals[1])
-#
-#        self.login(user1)
-#        url = reverse('user-detail', args=[user2.pk]) + 'vitals/'
-#        response = self.client.get(url)
-#        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-#
-#        fake_relation(user1, user2)
-#        response = self.client.get(url)
-#        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
     def test_search(self):
         """
         Ensure seaching works correctly.
@@ -52,3 +35,26 @@ class AccountTests(BaseTests):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['care_relations']['count'], 1)
+
+    def test_retrieve_update_delete(self):
+        user = self.create_account('aaa', '+8613120933999', '123')
+        self.login(user)
+
+        # retrieve
+        url = reverse('user-detail', args=[user.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # update
+        data = {'username': 'bbb',
+                'phone_number': '+8613125510418'}
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], data['username'])
+        self.assertEqual(response.data['phone_number'], data['phone_number'])
+
+        # delete
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+

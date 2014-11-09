@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
-
+from app_settings import auth_model_extensions
 User = get_user_model()
 
 
@@ -23,6 +23,8 @@ class BaseTests(APITestCase):
         user = User.objects.create_user(username, phone_number,
                                         password=password)
         Token.objects.create(user=user)
+        for e in auth_model_extensions:
+            e.objects.create(user=user)
         return user
 
 
