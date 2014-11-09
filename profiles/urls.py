@@ -17,5 +17,5 @@ setting_detail = views.UserSettingsViewSet.as_view({
 
 urlpatterns = patterns(
     '',
-    url(r'^settings/(?P<pk>[0-9]+)/$', setting_detail, name='setting-detail'),
+    url(r'^profiles/(?P<pk>[0-9]+)/$', setting_detail, name='profile-detail'),
 )

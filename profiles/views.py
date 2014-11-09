@@ -2,7 +2,8 @@ from rest_framework import viewsets
 
 from rest_framework import permissions
 from rest_condition import ConditionalPermission, C, And, Or, Not
-from main.permissions import IsOwner
+
+from permissions import IsOwner
 
 import models
 import serializers
@@ -10,8 +11,8 @@ import serializers
 
 class UserSettingsViewSet(viewsets.ModelViewSet):
 
-    serializer_class = serializers.UserSettingSerializer
-    model = models.Setting
+    serializer_class = serializers.UserProfileSerializer
+    model = models.Profile
     permission_classes = [ConditionalPermission, ]
     permission_condition = (C(permissions.IsAuthenticated) & IsOwner)
 
