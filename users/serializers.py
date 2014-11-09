@@ -3,7 +3,6 @@ Created on Oct 11, 2014
 
 @author: nanaya
 '''
-from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 
 from rest_framework.reverse import reverse
@@ -11,12 +10,8 @@ from rest_framework import serializers
 from rest_framework.settings import api_settings
 
 from models import User
-from settings.serializers import UserSettingSerializer
-from relations.models import Relation
-from relations.serializers import (RelationSerializer,
-                                   IncomingRelationSerializer,
-                                   OutgoingRelationSerializer)
-from vitals.serializers import UserMonitoringVitalSerializer
+from profiles.serializers import UserProfileSerializer
+from relations.serializers import RelationSerializer
 
 
 class DynamicFieldsHyperlinkedModelSerializer(
@@ -45,7 +40,7 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
 
     phone_number = serializers.CharField()
     auth_token = serializers.Field(source='auth_token.key')
-    settings = UserSettingSerializer(read_only=True)
+    profiles = UserProfileSerializer(read_only=True)
     care_relations = \
         serializers.SerializerMethodField('get_confirmed_relations')
     outgoing_care_relations = \
@@ -55,22 +50,13 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
     monitorings = \
         serializers.SerializerMethodField('get_monitorings')
 
-    def restore_object(self, attrs, instance=None):
-        """
-        Given a dictionary of deserialized field values, either update
-        an existing model instance, or create a new model instance.
-        """
-        if attrs.get('password', None) is not None:
-            attrs['password'] = make_password(attrs['password'])
-        return super(UserSerializer, self).restore_object(attrs, instance)
-
     class Meta:
         model = User
+        view_name = 'user-detail'
         fields = ('url', 'auth_token', 'username', 'phone_number',
-                  'password', 'settings', 'care_relations',
+                  'profiles', 'care_relations',
                   'outgoing_care_relations', 'incoming_care_relations',
                   'monitorings')
-        write_only_fields = ('password',)
 
     def get_pagination_serializer(self, queryset, page_number=1):
         class SerializerClass(api_settings.DEFAULT_PAGINATION_SERIALIZER_CLASS):
@@ -105,23 +91,11 @@ class UserSerializer(DynamicFieldsHyperlinkedModelSerializer):
 
 class UserPublicSerializer(serializers.HyperlinkedModelSerializer):
     """
-    Display public information of the user.
+    Display only the public information of a user.
     """
     phone_number = serializers.CharField()
-    settings = UserSettingSerializer(read_only=True)
+    profiles = UserProfileSerializer(read_only=True)
 
     class Meta:
         model = User
-        fields = ('url', 'username', 'settings')
-
-
-class SubAccountSerializer(serializers.HyperlinkedModelSerializer):
-    """
-    Display public information of the user.
-    """
-    phone_number = serializers.CharField()
-    settings = UserSettingSerializer(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ('url', 'username', 'password')
+        fields = ('url', 'username', 'profiles')

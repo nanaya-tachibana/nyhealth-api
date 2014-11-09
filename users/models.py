@@ -10,11 +10,13 @@ class UserManager(BaseUserManager):
     def _create_user(self, username, phone_number, email, password,
                      is_staff, is_superuser, **extra_fields):
         """
-        Creates and saves a User with 
+        Creates and saves a User with
         the given phone_number, username and password.
         """
         if not username:
             raise ValueError('The given username must be set')
+        if not phone_number:
+            raise ValueError('The given phone_number must be set')
         email = self.normalize_email(email)
         user = self.model(phone_number=phone_number,
                           username=username, email=email,
@@ -46,8 +48,8 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['phone_number']
+    USERNAME_FIELD = 'phone_number'
+    REQUIRED_FIELDS = ['username']
 
 #    def in_care_list(self, user_id):
 #        """
