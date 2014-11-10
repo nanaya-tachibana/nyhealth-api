@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from rest_framework.compat import urlparse
 from django.core.urlresolvers import resolve
 from django.shortcuts import get_object_or_404
@@ -6,7 +7,10 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.permissions import IsAuthenticated 
+from rest_framework.permissions import IsAuthenticated
+
+import notifications
+from notifications.api import add_message_for
 
 from filters import OrderingFilter
 
@@ -28,6 +32,9 @@ class UserRelationViewSet(viewsets.ModelViewSet):
 
     def post_delete(self, obj):
         obj.destroy()
+
+        message_text = u'%s 已经将你从关心列表中移除' % obj.user.username
+        add_message_for([obj.to_user], notifications.INFO, message_text)
 
 
 class UserOutgoingRelationViewSet(viewsets.ModelViewSet):
@@ -66,6 +73,9 @@ class UserOutgoingRelationViewSet(viewsets.ModelViewSet):
                                   opposite=-1)
             opposite.save()
 
+            message_text = u'%s 请求将你加入关心列表' % obj.user.username
+            add_message_for([obj.to_user], notifications.INFO, message_text)
+
     def post_delete(self, obj):
         obj.destroy()
 
@@ -88,6 +98,7 @@ class UserIncomingRelationViewSet(viewsets.ModelViewSet):
         """
         incoming = get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
         incoming.allow()
+        self.post_save(incoming)
         return Response(status=status.HTTP_200_OK)
 
     def deny(self, request, *args, **kwargs):
@@ -96,4 +107,13 @@ class UserIncomingRelationViewSet(viewsets.ModelViewSet):
         """
         incoming = get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
         incoming.deny()
+        self.post_delete(incoming)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def post_save(self, obj, created=False):
+        message_text = u'%s 同意了你的请求' % obj.user.username
+        add_message_for([obj.to_user], notifications.INFO, message_text)
+
+    def post_delete(self, obj):
+        message_text = u'%s 拒绝了你的请求' % obj.user.username
+        add_message_for([obj.to_user], notifications.INFO, message_text)

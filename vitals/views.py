@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
@@ -10,6 +11,8 @@ from rest_framework.decorators import detail_route, list_route
 from filters import OrderingFilter, SearchFilter
 from permissions import IsAdminUserOrReadOnly, IsOwnerOrHasRelation
 from utils import three_month_ago
+import notifications
+from notifications.api import add_message_for
 
 import models
 import serializers
@@ -25,7 +28,7 @@ class MultiCreateModelViewset(viewsets.ModelViewSet):
         if serializer.is_valid():
             [self.pre_save(obj) for obj in serializer.object]
             self.objects = serializer.save(force_insert=True)
-            [self.pre_save(obj) for obj in self.objects]
+            [self.post_save(obj, created=True) for obj in self.objects]
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED,
                             headers=headers)
@@ -59,13 +62,18 @@ class UserVitalRecordViewSet(MultiCreateModelViewset):
     ordering_fields = ('created', 'updated',)
     ordering = ('-created', )
 
+    def get_care_list(self, user):
+        """
+        Return users who are in one's care list.
+        """
+        return [r.to_user for r in user.relations.filter(opposite__gt=0)]
+
     def custom_object_permission_on_list(self, queryset):
         if queryset:
             user = queryset.all()[0].user
             request_user = self.request.user
             if not (user == request_user or
-                    request_user in [r.to_user for r in
-                                     user.relations.filter(opposite__gt=0)]):
+                    request_user in self.get_care_list(user)):
                 detail = "You do not have permission to perform this action."
                 raise PermissionDenied(detail=detail)
 
@@ -91,6 +99,14 @@ class UserVitalRecordViewSet(MultiCreateModelViewset):
 
     def pre_save(self, obj):
         obj.user = self.request.user
+
+    def post_save(self, obj, created=False):
+        if created:
+            message_text = (u'%s上传了他的%s数据, 快去看看吧'
+                            % (obj.user.username, obj.vital.name))
+            add_message_for(self.get_care_list(obj.user),
+                            notifications.INFO,
+                            message_text)
 
 
 class UserMonitoringVitalViewSet(MultiCreateModelViewset):

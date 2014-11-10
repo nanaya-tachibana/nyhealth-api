@@ -69,9 +69,10 @@ class VitalTests(RelationBasedTests):
         """
         Ensure we can upload new records and get them.
         """
-        user, _ = self.fake_account()
+        user, user2 = self.fake_account()
         self.login(user)
         vitals = self.fake_vitals()
+        self.fake_relations(user, user2)
 
         data = [
                 {'user': reverse('user-detail', args=[user.pk]),
@@ -87,6 +88,12 @@ class VitalTests(RelationBasedTests):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # test message
+        self.login(user2)
+        response = self.client.get(reverse('inbox-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 2)
 
     def test_add_delete_monitorings(self):
         """
