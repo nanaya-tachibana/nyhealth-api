@@ -77,7 +77,7 @@ class Logout(APIView):
 
     Accepts/Returns nothing.
     """
-    permissions_classes = (AllowAny,)
+    permissions_classes = (IsAuthenticated,)
 
     def post(self, request):
         try:

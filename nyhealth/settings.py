@@ -30,7 +30,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -39,8 +38,10 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    'main',
-    'settings',
+    'notifications',
+    'authorization',
+    'users',
+    'profiles',
     'relations',
     'vitals',
 )
@@ -66,21 +67,23 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
 
-DATABASES = {
-    'default': dj_database_url.config()
-}
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': '/home/nanaya/nyh',
-#        }
-#}
+if dj_database_url.config():
+    DATABASES = {
+        'default': dj_database_url.config()
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'nyh.db',
+            }
+    }
 
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-AUTH_USER_MODEL = 'main.User'
+AUTH_USER_MODEL = 'users.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -105,6 +108,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
+# rest-framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
@@ -115,3 +119,13 @@ REST_FRAMEWORK = {
     'PAGINATE_BY_PARAM': 'page_size',  # Allow client to override, using `?page_size=xxx`.
     'MAX_PAGINATE_BY': 100             # Maximum limit allowed when using `?page_size=xxx`.
 }
+
+
+# auth settings
+AUTHORIZATION = {
+    'SERIALIZERS': {
+        'USER_DETAILS_SERIALIZER': 'users.serializers.UserSerializer',
+    },
+    'USER_MODEL_EXTENSIONS': ['profiles.models.Profile']
+}
+

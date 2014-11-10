@@ -9,6 +9,8 @@ import models
 
 class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
 
+    birthday = serializers.DateField(format='iso-8601')
+
     class Meta:
         model = models.Profile
         view_name = 'profile-detail'

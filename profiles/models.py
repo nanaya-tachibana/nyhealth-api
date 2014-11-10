@@ -1,3 +1,4 @@
+from datetime import date
 from django.conf import settings
 from django.db import models
 
@@ -14,7 +15,7 @@ class Profile(models.Model):
     language = models.CharField(max_length=8, default='en')
     timezone = models.CharField(max_length=8, default='UTC')
     location = models.CharField(max_length=32, default='HK')
-    birthday = models.DateField('iso-8601', default='1970-01-01')
+    birthday = models.DateField(default=date(1970,01,01))
 
     class Meta:
         db_table = 'user_profiles'

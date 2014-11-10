@@ -92,6 +92,7 @@ class VitalTests(RelationBasedTests):
         # test message
         self.login(user2)
         response = self.client.get(reverse('inbox-list'))
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 2)
 

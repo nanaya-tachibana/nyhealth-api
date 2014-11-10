@@ -32,6 +32,6 @@ class ProfileTests(BaseTests):
         self.login(user)
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['birthday'].isoformat(), '1999-10-20')
+        self.assertEqual(response.data['birthday'], '1999-10-20')
         self.assertEqual(response.data['language'], 'cn')
 
