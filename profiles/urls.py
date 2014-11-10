@@ -8,7 +8,7 @@ from django.conf.urls import patterns, url
 import views
 
 
-setting_detail = views.UserSettingsViewSet.as_view({
+profile_detail = views.UserProfilesViewSet.as_view({
     'get': 'retrieve',
     'put': 'update',
     'patch': 'partial_update'
@@ -17,5 +17,5 @@ setting_detail = views.UserSettingsViewSet.as_view({
 
 urlpatterns = patterns(
     '',
-    url(r'^profiles/(?P<pk>[0-9]+)/$', setting_detail, name='profile-detail'),
+    url(r'^profiles/(?P<pk>[0-9]+)/$', profile_detail, name='profile-detail'),
 )

@@ -6,7 +6,7 @@ import models
 import serializers
 
 
-class UserSettingsViewSet(viewsets.ModelViewSet):
+class UserProfilesViewSet(viewsets.ModelViewSet):
 
     model = models.Profile
     serializer_class = serializers.UserProfileSerializer

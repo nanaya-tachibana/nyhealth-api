@@ -3,7 +3,7 @@ Created on Nov 8, 2014
 
 @author: nanaya
 '''
-from datetime import datetime, timedelta, date
+from django.utils import timezone
 
 from six import string_types
 from django.utils.importlib import import_module
@@ -19,4 +19,4 @@ def import_callable(path_or_callable):
 
 
 def three_month_ago():
-    return date.today() - timedelta(weeks=12)
+    return timezone.now() - timezone.timedelta(weeks=12)
